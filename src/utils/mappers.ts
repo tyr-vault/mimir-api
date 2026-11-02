@@ -1,4 +1,5 @@
 import type { Category, CategoryRow } from '../types/category.types.js';
+import type { Draft, DraftPayload, DraftRow } from '../types/draft.types.js';
 import type { Transaction, TransactionRow } from '../types/transaction.types.js';
 import type { User, UserRow } from '../types/user.types.js';
 
@@ -36,6 +37,26 @@ export const mapTransactionRow = (row: TransactionRow): Transaction => ({
     amount: toNumber(row.amount),
     date: toDateString(row.date),
     note: row.note,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+});
+
+const parsePayload = (payload: DraftPayload | string): DraftPayload => {
+    if (typeof payload === 'string') {
+        return JSON.parse(payload) as DraftPayload;
+    }
+    return payload;
+};
+
+export const mapDraftRow = (row: DraftRow): Draft => ({
+    id: row.id,
+    userId: row.user_id,
+    kind: row.kind,
+    status: row.status,
+    payload: parsePayload(row.payload),
+    source: row.source,
+    confirmedAt: row.confirmed_at,
+    rejectedAt: row.rejected_at,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
 });

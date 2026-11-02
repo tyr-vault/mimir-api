@@ -10,6 +10,7 @@ import authRoutes from './routes/auth.routes.js';
 import transactionRoutes from './routes/transactions.routes.js';
 import summaryRoutes from './routes/summary.routes.js';
 import categoryRoutes from './routes/categories.routes.js';
+import draftRoutes from './routes/drafts.routes.js';
 import { setupSwagger } from './swagger/setup.js';
 import { ApiError } from './utils/ApiError.js';
 
@@ -61,6 +62,7 @@ app.use('/auth', authRoutes);
 app.use('/transactions', transactionRoutes);
 app.use('/summary', summaryRoutes);
 app.use('/categories', categoryRoutes);
+app.use('/drafts', draftRoutes);
 
 const errorHandler: ErrorRequestHandler = (
     err: unknown,

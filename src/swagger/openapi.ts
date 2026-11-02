@@ -102,6 +102,12 @@ export const openApiSpec = {
                 'Aggregates for bots and dashboards — period totals, by category, and by month.',
             'x-displayName': '4. Summaries',
         },
+        {
+            name: 'Drafts',
+            description:
+                'Bot-submitted creates awaiting dashboard confirmation (auto-confirm after 3 days).',
+            'x-displayName': '5. Drafts',
+        },
     ],
     'x-tagGroups': [
         {
@@ -110,7 +116,7 @@ export const openApiSpec = {
         },
         {
             name: 'Core resources',
-            tags: ['Categories', 'Transactions'],
+            tags: ['Categories', 'Transactions', 'Drafts'],
         },
         {
             name: 'Analytics',
@@ -497,6 +503,135 @@ export const openApiSpec = {
                     '400': { $ref: '#/components/responses/BadRequest' },
                     '401': { $ref: '#/components/responses/Unauthorized' },
                     '409': { $ref: '#/components/responses/Conflict' },
+                },
+            },
+        },
+        '/drafts': {
+            get: {
+                tags: ['Drafts'],
+                operationId: 'listDrafts',
+                summary: 'List drafts',
+                description:
+                    'Lists drafts for the user. Pending drafts older than 3 days are auto-confirmed first.',
+                security: [{ bearerAuth: [] }],
+                parameters: [
+                    {
+                        name: 'status',
+                        in: 'query',
+                        schema: {
+                            type: 'string',
+                            enum: ['pending', 'confirmed', 'rejected'],
+                            default: 'pending',
+                        },
+                    },
+                ],
+                responses: {
+                    '200': successResponse('Drafts retrieved.', {
+                        type: 'array',
+                        items: { type: 'object' },
+                    }),
+                    '401': { $ref: '#/components/responses/Unauthorized' },
+                },
+            },
+            post: {
+                tags: ['Drafts'],
+                operationId: 'createDraft',
+                summary: 'Create a draft',
+                description: 'Creates a pending draft (bot creates). Confirm later via dashboard.',
+                security: [{ bearerAuth: [] }],
+                requestBody: {
+                    required: true,
+                    content: {
+                        'application/json': {
+                            schema: {
+                                type: 'object',
+                                required: ['kind', 'payload'],
+                                properties: {
+                                    kind: {
+                                        type: 'string',
+                                        enum: ['transaction', 'category'],
+                                    },
+                                    payload: { type: 'object' },
+                                    source: { type: 'string', default: 'bot' },
+                                },
+                            },
+                        },
+                    },
+                },
+                responses: {
+                    '201': successResponse('Draft created.', { type: 'object' }, 201),
+                    '400': { $ref: '#/components/responses/BadRequest' },
+                    '401': { $ref: '#/components/responses/Unauthorized' },
+                },
+            },
+        },
+        '/drafts/{id}': {
+            get: {
+                tags: ['Drafts'],
+                operationId: 'getDraft',
+                summary: 'Get draft',
+                security: [{ bearerAuth: [] }],
+                parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+                responses: {
+                    '200': successResponse('Draft retrieved.', { type: 'object' }),
+                    '401': { $ref: '#/components/responses/Unauthorized' },
+                    '404': { $ref: '#/components/responses/NotFound' },
+                },
+            },
+            patch: {
+                tags: ['Drafts'],
+                operationId: 'updateDraft',
+                summary: 'Update pending draft payload',
+                security: [{ bearerAuth: [] }],
+                parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+                requestBody: {
+                    required: true,
+                    content: {
+                        'application/json': {
+                            schema: {
+                                type: 'object',
+                                required: ['payload'],
+                                properties: { payload: { type: 'object' } },
+                            },
+                        },
+                    },
+                },
+                responses: {
+                    '200': successResponse('Draft updated.', { type: 'object' }),
+                    '400': { $ref: '#/components/responses/BadRequest' },
+                    '401': { $ref: '#/components/responses/Unauthorized' },
+                    '404': { $ref: '#/components/responses/NotFound' },
+                },
+            },
+        },
+        '/drafts/{id}/confirm': {
+            post: {
+                tags: ['Drafts'],
+                operationId: 'confirmDraft',
+                summary: 'Confirm draft',
+                description: 'Applies the draft (creates transaction or category) and marks it confirmed.',
+                security: [{ bearerAuth: [] }],
+                parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+                responses: {
+                    '200': successResponse('Draft confirmed.', { type: 'object' }),
+                    '400': { $ref: '#/components/responses/BadRequest' },
+                    '401': { $ref: '#/components/responses/Unauthorized' },
+                    '404': { $ref: '#/components/responses/NotFound' },
+                },
+            },
+        },
+        '/drafts/{id}/reject': {
+            post: {
+                tags: ['Drafts'],
+                operationId: 'rejectDraft',
+                summary: 'Reject draft',
+                security: [{ bearerAuth: [] }],
+                parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+                responses: {
+                    '200': successResponse('Draft rejected.', { type: 'object' }),
+                    '400': { $ref: '#/components/responses/BadRequest' },
+                    '401': { $ref: '#/components/responses/Unauthorized' },
+                    '404': { $ref: '#/components/responses/NotFound' },
                 },
             },
         },

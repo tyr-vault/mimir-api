@@ -11,102 +11,40 @@ const sendOpenApiJson = (req: Request, res: Response, asDownload: boolean): void
     res.type('application/json').send(JSON.stringify(openApiSpec, null, 2));
 };
 
+const REDOC_CDN = 'https://cdn.redoc.ly/redoc/v3.x/bundles/redoc.standalone.js';
+
 const redocHtml = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="color-scheme" content="dark" />
+  <meta name="color-scheme" content="dark light" />
   <title>Mimir API — ReDoc</title>
   <style>
     html, body {
       margin: 0;
       padding: 0;
-      background: #0b0d10;
-      color: #e8eaed;
+    }
+    :root.light,
+    :root.dark {
+      --sidebar-width: 280px;
+      --color-primary-base: #6ea8fe;
+    }
+    :root.dark {
+      --sidebar-bg-color: #11141a;
+      --bg-color: #0b0d10;
+      --text-color-primary: #e8eaed;
+      --text-color-secondary: #9aa0a6;
     }
   </style>
 </head>
 <body>
-  <div id="redoc-container"></div>
-  <script src="https://cdn.redoc.ly/redoc/latest/bundles/redoc.standalone.js"></script>
-  <script>
-    Redoc.init(
-      '/api/docs.json',
-      {
-        expandResponses: '200,201',
-        pathInMiddlePanel: true,
-        hideDownloadButton: false,
-        theme: {
-          colors: {
-            primary: { main: '#6ea8fe' },
-            success: { main: '#3dd68c' },
-            warning: { main: '#ffc107' },
-            error: { main: '#ff6b6b' },
-            text: {
-              primary: '#e8eaed',
-              secondary: '#9aa0a6',
-            },
-            http: {
-              get: '#61affe',
-              post: '#49cc90',
-              put: '#fca130',
-              patch: '#50e3c2',
-              delete: '#f93e3e',
-            },
-            border: {
-              dark: '#2a2f3a',
-              light: '#1e222a',
-            },
-          },
-          sidebar: {
-            backgroundColor: '#11141a',
-            textColor: '#e8eaed',
-            activeTextColor: '#6ea8fe',
-            groupItems: {
-              activeBackgroundColor: '#1a1f29',
-              activeTextColor: '#6ea8fe',
-              textTransform: 'none',
-            },
-            level1Items: {
-              activeBackgroundColor: '#1a1f29',
-              activeTextColor: '#ffffff',
-              textTransform: 'none',
-            },
-          },
-          rightPanel: {
-            backgroundColor: '#0f1218',
-            textColor: '#e8eaed',
-          },
-          typography: {
-            fontSize: '14px',
-            fontFamily: 'system-ui, -apple-system, Segoe UI, Roboto, sans-serif',
-            headings: {
-              fontFamily: 'system-ui, -apple-system, Segoe UI, Roboto, sans-serif',
-              fontWeight: '600',
-            },
-            code: {
-              fontSize: '13px',
-              fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
-              backgroundColor: '#1a1f29',
-              color: '#e8eaed',
-            },
-            links: {
-              color: '#6ea8fe',
-              visited: '#6ea8fe',
-              hover: '#9ec1ff',
-            },
-          },
-          schema: {
-            nestedBackground: '#151922',
-            typeNameColor: '#9aa0a6',
-            typeTitleColor: '#e8eaed',
-          },
-        },
-      },
-      document.getElementById('redoc-container'),
-    );
-  </script>
+  <redoc
+    spec-url="/api/docs.json"
+    disable-telemetry="true"
+    sort-required-props-first="true"
+  ></redoc>
+  <script type="module" src="${REDOC_CDN}"></script>
 </body>
 </html>`;
 

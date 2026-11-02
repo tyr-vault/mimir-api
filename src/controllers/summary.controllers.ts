@@ -3,6 +3,7 @@ import asyncHandler from '../utils/asyncHandler.js';
 import { ApiError } from '../utils/ApiError.js';
 import { ApiResponse } from '../utils/ApiResponse.js';
 import { transactionRepository } from '../repositories/transaction.repository.js';
+import { confirmExpiredDrafts } from '../services/draft.service.js';
 import type { TransactionFilters, TransactionType } from '../types/transaction.types.js';
 
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
@@ -29,6 +30,7 @@ const parsePeriodFilters = (query: Request['query']): TransactionFilters => ({
 });
 
 export const getSummary = asyncHandler(async (req: Request, res: Response) => {
+    await confirmExpiredDrafts(req.user.id);
     const filters = parsePeriodFilters(req.query);
     const summary = await transactionRepository.getPeriodSummary(req.user.id, filters);
     res.status(200).json(new ApiResponse(200, summary, 'Summary retrieved'));

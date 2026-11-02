@@ -4,6 +4,7 @@ import { ApiError } from '../utils/ApiError.js';
 import { ApiResponse } from '../utils/ApiResponse.js';
 import { categoryRepository } from '../repositories/category.repository.js';
 import { transactionRepository } from '../repositories/transaction.repository.js';
+import { confirmExpiredDrafts } from '../services/draft.service.js';
 import type {
     TransactionFilters,
     TransactionType,
@@ -96,6 +97,7 @@ export const createTransaction = asyncHandler(async (req: Request, res: Response
 });
 
 export const listTransactions = asyncHandler(async (req: Request, res: Response) => {
+    await confirmExpiredDrafts(req.user.id);
     const filters = parseFilters(req.query);
     const transactions = await transactionRepository.list(req.user.id, filters);
     res.status(200).json(new ApiResponse(200, transactions, 'Transactions retrieved'));

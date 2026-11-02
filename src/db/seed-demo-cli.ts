@@ -1,8 +1,6 @@
-import dotenv from 'dotenv';
+import 'dotenv/config';
 import { connectToDb, disconnectDb } from './knex.js';
 import { seedDemoData } from './seed-demo.js';
-
-dotenv.config({ path: '.env' });
 
 await connectToDb();
 await seedDemoData();

@@ -28,6 +28,14 @@ export const categoryRepository = {
         return row ? mapCategoryRow(row) : null;
     },
 
+    async findByNameForUser(name: string, userId: string): Promise<Category | null> {
+        const row = await db<CategoryRow>(CATEGORIES)
+            .where({ user_id: userId })
+            .andWhereRaw('LOWER(name) = LOWER(?)', [name.trim()])
+            .first();
+        return row ? mapCategoryRow(row) : null;
+    },
+
     async create(input: CreateCategoryInput): Promise<Category> {
         const [row] = await db<CategoryRow>(CATEGORIES)
             .insert({
