@@ -3,9 +3,9 @@ import { transactionRepository } from '../repositories/transaction.repository.js
 import { userRepository } from '../repositories/user.repository.js';
 import type { TransactionType } from '../types/transaction.types.js';
 
-export const DEMO_EMAIL = 'admin@example.com';
-export const DEMO_PASSWORD = 'admin';
-export const DEMO_NAME = 'Admin';
+export const DEMO_EMAIL = (process.env.ADMIN_EMAIL ?? 'admin@example.com').trim().toLowerCase();
+export const DEMO_PASSWORD = process.env.ADMIN_PASSWORD ?? 'admin';
+export const DEMO_NAME = (process.env.ADMIN_NAME ?? 'Admin').trim();
 
 const daysAgo = (days: number): string => {
     const date = new Date();
