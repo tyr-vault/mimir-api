@@ -1,7 +1,8 @@
-.PHONY: help setup dev up down logs restart rebuild ps clean nuke migrate seed shell
+.PHONY: help setup dev up down logs restart rebuild ps clean nuke migrate seed shell prod-up prod-down prod-logs prod-rebuild
 
 ENV_FILE      ?= .local.env
 COMPOSE       := docker compose -f docker-compose.yml -f docker-compose.dev.yml
+COMPOSE_PROD  := docker compose -f docker-compose.yml
 COMPOSE_FLAGS := --remove-orphans
 
 help: ## Show available commands
@@ -55,3 +56,17 @@ seed: setup ## Re-run demo seed inside the API container (idempotent)
 
 shell: ## Open a shell in the running API container
 	$(COMPOSE) exec api sh
+
+prod-up: setup ## Homelab prod — API + Postgres (detached, no demo seed / hot reload)
+	$(COMPOSE_PROD) up --build -d $(COMPOSE_FLAGS)
+	@echo "API (prod): http://localhost:$${PORT:-5000}"
+	@echo "Logs: make prod-logs"
+
+prod-down: ## Stop production API + Postgres
+	$(COMPOSE_PROD) down $(COMPOSE_FLAGS)
+
+prod-logs: ## Follow production API logs
+	$(COMPOSE_PROD) logs -f api
+
+prod-rebuild: setup ## Force rebuild production stack
+	$(COMPOSE_PROD) up --build -d --force-recreate $(COMPOSE_FLAGS)
